@@ -1,24 +1,24 @@
 package com.proyecto.microserviciotransporte.controller;
 
+import com.proyecto.microserviciotransporte.service.TransportService;
+import com.proyecto.microserviciotransporte.model.Bus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/transporte")
 public class TransporteController {
 
-    @GetMapping
-    public String obtenerTransporte() {
-        // Lógica para obtener información de transporte
-        return "Información de transporte";
+    private final TransportService transportService;
+
+    public TransporteController(TransportService transportService) {
+        this.transportService = transportService;
     }
 
-    @PostMapping
-    public String crearTransporte(@RequestBody String nuevoTransporte) {
-        // Lógica para crear nueva información de transporte
-        return "Nuevo transporte creado";
+    @GetMapping("/transporte/buses")
+    public List<Bus> getBuses() {
+        transportService.moveBuses(); // Actualizar posiciones de buses
+        return transportService.getBuses();
     }
 }
