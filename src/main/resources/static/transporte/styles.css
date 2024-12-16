@@ -4,8 +4,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0;
-    padding: 0;
+    margin: 10px;
+    padding: 0px;
     background-color: #6e6e6e;
 }
 
@@ -24,7 +24,31 @@ body {
     align-items: center;
     position: relative;
 }
+.route {
+    position: absolute;
+}
 
+.route.horizontal {
+    height: 4px;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.route.vertical {
+    width: 4px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.route1 {
+    background-color: #7b4c34;
+}
+
+.route2 {
+    background-color: #317f43;
+}
 
 
 .building {
@@ -129,3 +153,21 @@ body {
      border: none; /* No border */
      color: gray;
  }
+
+.legend {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}

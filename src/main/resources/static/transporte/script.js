@@ -1,4 +1,5 @@
 const board = document.getElementById('transporte-board');
+const legend = document.getElementById('legend');
 const gridWidth = 9; // columns
 const gridHeight = 7; // rows
 
@@ -32,6 +33,86 @@ if (board) {
         board.appendChild(cell);
     }
 
+    const rutas = [
+        {
+            id: 1,
+            color: '#7b4c34',
+            name: 'Linea 1',
+            path: [
+                { x: 1, y: 0 },
+                { x: 1, y: 1 },
+                { x: 1, y: 2 },
+                { x: 1, y: 3 },
+                { x: 2, y: 3 },
+                { x: 3, y: 3 },
+                { x: 4, y: 3 },
+                { x: 5, y: 3 },
+                { x: 5, y: 4 },
+                { x: 5, y: 5 },
+                { x: 5, y: 6 },
+            ],
+        },
+        {
+            id: 2,
+            color: '#317f43',
+            name: 'Linea 2',
+            path: [
+                { x: 7, y: 6 },
+                { x: 7, y: 5 },
+                { x: 7, y: 4 },
+                { x: 7, y: 3 },
+                { x: 6, y: 3 },
+                { x: 5, y: 3 },
+                { x: 4, y: 3 },
+                { x: 3, y: 3 },
+                { x: 3, y: 2 },
+                { x: 3, y: 1 },
+                { x: 3, y: 0 },
+            ],
+        }
+    ];
+
+    rutas.forEach(ruta => {
+        // Add legend item
+        const legendItem = document.createElement('div');
+        legendItem.classList.add('legend-item');
+
+        const legendColor = document.createElement('div');
+        legendColor.classList.add('legend-color');
+        legendColor.style.backgroundColor = ruta.color;
+
+        const legendText = document.createElement('span');
+        legendText.textContent = ruta.name;
+
+        legendItem.appendChild(legendColor);
+        legendItem.appendChild(legendText);
+        legend.appendChild(legendItem);
+
+        // Draw route lines
+        ruta.path.forEach((point, index) => {
+            const cellIndex = point.y * gridWidth + point.x;
+            const cell = board.children[cellIndex];
+
+            if (cell) {
+                const routeLine = document.createElement('div');
+                routeLine.classList.add('route', `route${ruta.id}`);
+                routeLine.style.backgroundColor = ruta.color;
+
+                // Determine orientation of the line (horizontal or vertical)
+                if (index > 0) {
+                    const prevPoint = ruta.path[index - 1];
+                    if (prevPoint.x === point.x) {
+                        routeLine.classList.add('vertical');
+                    } else if (prevPoint.y === point.y) {
+                        routeLine.classList.add('horizontal');
+                    }
+                }
+
+                cell.appendChild(routeLine);
+            }
+        });
+    });
+
     // Fetch and render static buildings
     fetch('http://localhost:8080/mapa/edificios')
         .then(response => response.json())
@@ -57,35 +138,39 @@ if (board) {
                     buildingLabels.push(`Building (${building.x},${building.y})`);
                 }
             });
-
-            // Create pie chart
-            const ctx = document.getElementById('waterConsumptionChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: buildingLabels,
-                    datasets: [{
-                        data: waterConsumptionData,
-                        backgroundColor: waterConsumptionData.map(value => value > 80 ? 'red' : 'green')
-                    }]
-                },
-                options: {
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    return `${label}: ${value} units`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
         })
         .catch(error => console.error('Error fetching buildings:', error));
 }
+
+function fetchAndUpdateBuses() {
+    // Clear dynamic bus elements
+    document.querySelectorAll('.bus').forEach(element => element.remove());
+
+    fetch('/transporte/buses')
+        .then(response => response.json())
+        .then(buses => {
+            if (Array.isArray(buses)) {
+                buses.forEach(bus => {
+                    if (bus.x >= 0 && bus.x < gridWidth && bus.y >= 0 && bus.y < gridHeight) {
+                        const index = bus.y * gridWidth + bus.x;
+                        const cell = board.children[index];
+
+                        const busDiv = document.createElement('div');
+                        busDiv.classList.add('bus');
+                        busDiv.style.backgroundColor = 'blue'; // Assign bus color
+                        cell.appendChild(busDiv);
+                    }
+                });
+            } else {
+                console.error('Invalid buses response:', buses);
+            }
+        })
+        .catch(error => console.error('Error fetching buses:', error));
+}
+
+// Update buses dynamically every 2 seconds
+setInterval(fetchAndUpdateBuses, 2000);
+
 fetch('/mapa/residuos')
     .then(response => response.json())
     .then(recyclingPoints => {
