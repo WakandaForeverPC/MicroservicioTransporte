@@ -15,9 +15,9 @@ public class TransportService {
     public TransportService() {
         buses = new ArrayList<>();
 
-        // Initialize test buses
-        buses.add(new Bus("bus1", 1, 0, "EAST", "Route1"));
-        buses.add(new Bus("bus2", 7, 7, "WEST", "Route2"));
+        // Inicializamos buses, fuera del tablero, para que entren ya en la dirección seleccionada
+        buses.add(new Bus("bus1", 1, -1, "SOUTH", "Route1"));
+        buses.add(new Bus("bus2", 7, 7, "NORTH", "Route2"));
     }
 
     public synchronized void moveBuses() {
